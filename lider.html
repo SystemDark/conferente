@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel da Líder Operacional</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body{font-family:Arial;background:#f4f6f9;padding:20px}
+        h1{text-align:center;color:#002244}
+        .dashboard{display:flex;gap:15px;margin-bottom:20px;flex-wrap:wrap}
+        .box{
+            flex:1;
+            min-width:180px;
+            background:white;
+            padding:15px;
+            border-radius:8px;
+            box-shadow:0 3px 10px rgba(0,0,0,0.08);
+            text-align:center;
+            font-weight:bold;
+        }
+        table{width:100%;border-collapse:collapse;background:white}
+        th,td{padding:8px;border-bottom:1px solid #ddd;text-align:center;font-size:13px}
+        th{background:#002244;color:white}
+        .deadline{background:#fff3cd}
+        .demurrage{background:#f8d7da}
+    </style>
+</head>
+<body>
+
+<h1>Painel Estratégico - Líder Operacional</h1>
+
+<div class="dashboard">
+    <div class="box">Total<br><span id="total">0</span></div>
+    <div class="box">Vazios<br><span id="vazios">0</span></div>
+    <div class="box">Cheios<br><span id="cheios">0</span></div>
+    <div class="box">Deadline<br><span id="deadline">0</span></div>
+    <div class="box">Demurrage<br><span id="demurrage">0</span></div>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>Container</th>
+        <th>Tipo</th>
+        <th>Movimento</th>
+        <th>Empresa</th>
+        <th>Localização</th>
+        <th>Prazo</th>
+        <th>Motorista</th>
+        <th>Data</th>
+    </tr>
+    </thead>
+    <tbody id="tabela"></tbody>
+</table>
+
+<script>
+
+    function atualizar(){
+
+        let banco = JSON.parse(localStorage.getItem("patio_db")) || [];
+
+        document.getElementById("total").innerText=banco.length;
+        document.getElementById("vazios").innerText=banco.filter(c=>c.tipo==="Vazio").length;
+        document.getElementById("cheios").innerText=banco.filter(c=>c.tipo==="Cheio").length;
+        document.getElementById("deadline").innerText=banco.filter(c=>c.prazo==="Deadline").length;
+        document.getElementById("demurrage").innerText=banco.filter(c=>c.prazo==="Demurrage").length;
+
+        let tabela = document.getElementById("tabela");
+        tabela.innerHTML="";
+
+        banco.sort((a,b)=>a.numero.localeCompare(b.numero));
+
+        banco.forEach(c=>{
+
+            let classe="";
+            if(c.prazo==="Deadline") classe="deadline";
+            if(c.prazo==="Demurrage") classe="demurrage";
+
+            tabela.innerHTML+=`
+<tr class="${classe}">
+<td>${c.numero}</td>
+<td>${c.tipo}</td>
+<td>${c.movimento}</td>
+<td>${c.empresa||"-"}</td>
+<td>${c.localizacao}</td>
+<td>${c.prazo||"-"}</td>
+<td>${c.motorista||"-"}</td>
+<td>${c.data}</td>
+</tr>
+`;
+
+        });
+    }
+
+    // atualização automática ao vivo
+    setInterval(atualizar,3000);
+
+    atualizar();
+
+</script>
+
+</body>
+</html>
